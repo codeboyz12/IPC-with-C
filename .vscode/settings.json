@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "ipc.h": "c"
+        "ipc.h": "c",
+        "unistd.h": "c",
+        "sender.h": "c",
+        "pthread.h": "c",
+        "msg.h": "c",
+        "stdio.h": "c"
     }
 }

@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <pthread.h>
 
 struct message_buff {
     long type;
@@ -26,9 +25,8 @@ void* sender(void* arg) {
         if (!fgets(line, sizeof(line), stdin))
             break;
 
-        line[strcspn(line, "\n")] = '\0'; // remove newline
+        line[strcspn(line, "\n")] = '\0';
 
-        // --- parse ---
         char *cmd = strtok(line, " \t");
         char *target_str = strtok(NULL, " \t");
         char *text = strtok(NULL, "");
@@ -44,7 +42,6 @@ void* sender(void* arg) {
             if (*end == '\0') target_pid = (pid_t)val;
         }
 
-        // --- fill message struct ---
         msg.from_pid = getpid();
         msg.to_pid = target_pid;
         strncpy(msg.cmd, cmd, sizeof(msg.cmd) - 1);
@@ -52,16 +49,13 @@ void* sender(void* arg) {
         strncpy(msg.text, text, sizeof(msg.text) - 1);
         msg.text[sizeof(msg.text) - 1] = '\0';
 
-        // --- choose routing type ---
         if (strcmp(cmd, "DM") == 0) {
-            msg.type = 1;  // send to main process for routing
+            msg.type = 1;
             msgsnd(msgid, &msg, sizeof(msg) - sizeof(long), 0);
 
-            // printf("Sent DM: from %d → to %d : %s\n",
-            //        msg.from_pid, msg.to_pid, msg.text);
         } else if (strcmp(cmd, "BROAD") == 0) {
             msg.type = 1;
-            msg.to_pid = 0; // broadcast
+            msg.to_pid = 0;
             msgsnd(msgid, &msg, sizeof(msg) - sizeof(long), 0);
             printf("Broadcast: %s\n", msg.text);
         } else {
